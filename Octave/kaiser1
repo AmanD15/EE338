@@ -1,0 +1,35 @@
+clear all;close all;
+xline = @(xval, varargin) line([xval xval], ylim, varargin{:});
+N = 33;
+x = 0.001;
+t = -1:x:1;
+v = sin(pi*0.5.*t*(2*N+1))./sin(pi*0.5.*t);
+v((length(t)+1)/2) = 2*N+1;
+lt = length(t);
+h = zeros(size(t));
+h((0.5+0.3594/2)*lt:(0.5+0.5049/2)*lt) = 1;
+h((0.5-0.5049/2)*lt:(0.5-0.3594/2)*lt) = 1;
+
+figure;
+plot(t,v);
+xlabel ("Normalised discrete-time frequency")
+ylabel ("Magnitude of frequency respoonse of window function")
+hold on;
+
+
+h1 = conv(h,v,'same')*x/(2);
+figure;
+plot(t,abs(h1));
+xlabel ("Normalised discrete-time frequency")
+ylabel ("Magnitude of frequency respoonse of filter")
+hold on;
+%plot(t,1.15*ones(size(t)));
+%plot(t,0.85*ones(size(t)));
+%plot(t,0.15*ones(size(t)));
+%plot(t,0*ones(size(t)));
+
+%%Plot the vertical lines denoting filter bandedges on the plot. Uncomment to execute
+%xline(0.3715);
+%xline(0.4927);
+%xline(0.3472);
+%xline(0.5470);

@@ -1,0 +1,109 @@
+clear all;close all;
+xline = @(xval, varargin) line([xval xval], ylim, varargin{:});
+D = 0.3841;
+k= [0:3];
+p = i*cos(k*pi/4 + acos(sqrt(-1/D))/4);
+%p = [-0.12216 + 0.96981i	,-0.12216 - 0.96981i,	-0.29492 - 0.40171i,	-0.29492 + 0.40171i];
+
+% Analog LP Design
+num = p(1)*p(2)*p(3)*p(4)/sqrt(1+D);
+den = conv([1,-p(1)],conv([1,-p(2)],conv([1,-p(3)],[1,-p(4)]))); 
+
+t = [-2:0.001:2];
+t = t.*i;
+
+den1 = zeros(size(t));
+for j = 0:4
+  den1 =den1 + den(5-j)*t.^(j);
+endfor
+clear j;
+Hsl = num./den1;
+figure;
+plot(t./i,abs(Hsl));
+hold on;
+
+plot(t/i,1*ones(size(t)));
+plot(t/i,0.85*ones(size(t)));
+plot(t/i,0.15*ones(size(t)));
+
+%Plot the vertical lines denoting filter bandedges on the plot. Uncomment to execute
+%xline(1);
+%xline(1.3981);
+xlabel ("Analog Lowpass Frequency")
+ylabel ("Magnitude of frequency respoonse")
+
+% Analog BP Design
+
+B = 1/0.317;
+ombyB = 0.8033*0.8033*B;
+coef = [B,0,ombyB];
+
+den2 = [conv(den(1),conv(coef,conv(coef,conv(coef,coef))))];
+den2 = den2 + [0,conv(den(2),conv(coef,conv(coef,coef))),0];
+den2=[0,0,conv(den(3),conv(coef,coef)),0,0]+den2;
+den2=[0,0,0,conv(den(4),coef),0,0,0]+den2;
+den2=[0,0,0,0,den(5),0,0,0,0]+den2;
+num2 = num*t.^4;
+den3 = zeros(size(t));
+for j = 0:8
+  den3 =den3 + den2(9-j)*t.^(j);
+endfor
+clear j;
+figure;
+Hs = num2./den3;
+plot(t./i,abs(Hs));
+hold on;
+plot(t/i,1*ones(size(t)));
+plot(t/i,0.85*ones(size(t)));
+plot(t/i,0.15*ones(size(t)));
+
+%Plot the  vertical lines denoting filter bandedges on the plot. Uncomment to execute
+%xline(0.6068);
+%xline(0.6603);
+%xline(0.9773);
+%xline(1.0549);
+xlabel ("Analog Bandpass Frequency")
+ylabel ("Magnitude of frequency respoonse")
+
+% s to z conversion (bilinear transform)
+        
+num4 = num*conv([1,0,-1],conv([1,0,-1],conv([1,0,-1],([1,0,-1]))));
+den4 = den2(1)*conv([1,-1],conv([1,-1],conv([1,-1],
+  conv([1,-1],conv([1,-1],conv([1,-1],conv([1,-1],([1,-1]))))))));
+den4 = den4 +den2(2)*conv([1,-1],conv([1,-1],conv([1,-1],
+  conv([1,-1],conv([1,-1],conv([1,-1],conv([1,-1],([1,1]))))))));
+den4 = den4 +den2(3)*conv([1,-1],conv([1,-1],conv([1,-1],
+  conv([1,-1],conv([1,-1],conv([1,-1],conv([1,1],([1,1]))))))));
+den4 = den4 +den2(4)*conv([1,-1],conv([1,-1],conv([1,-1],
+  conv([1,-1],conv([1,-1],conv([1,1],conv([1,1],([1,1]))))))));
+den4 = den4 +den2(5)*conv([1,-1],conv([1,-1],conv([1,-1],
+  conv([1,-1],conv([1,1],conv([1,1],conv([1,1],([1,1]))))))));
+den4 = den4 +den2(6)*conv([1,-1],conv([1,-1],conv([1,-1],
+  conv([1,1],conv([1,1],conv([1,1],conv([1,1],([1,1]))))))));
+den4 = den4 +den2(7)*conv([1,-1],conv([1,-1],conv([1,1],
+  conv([1,1],conv([1,1],conv([1,1],conv([1,1],([1,1]))))))));
+den4 = den4 +den2(8)*conv([1,-1],conv([1,1],conv([1,1],
+  conv([1,1],conv([1,1],conv([1,1],conv([1,1],([1,1]))))))));
+den4 = den4 +den2(9)*conv([1,1],conv([1,1],conv([1,1],
+  conv([1,1],conv([1,1],conv([1,1],conv([1,1],([1,1]))))))));
+ 
+clear j;
+[H,W] = freqz(num4,den4);
+
+figure;
+plot(W/pi,abs(H));
+hold on;
+plot(W/pi,1*ones(size(W)));
+plot(W/pi,0.85*ones(size(W)));
+plot(W/pi,0.15*ones(size(W)));
+
+%Plot the  vertical lines denoting filter bandedges on the plot. Uncomment to execute
+%xline(0.3472);
+%xline(0.3715);
+%xline(0.4927);
+%xline(0.5170);
+xlabel ("Normalised discrete-time frequency")
+ylabel ("Magnitude of frequency respoonse")
+
+figure;
+freqz(num4,den4); %{Plots magnitude and phase response)

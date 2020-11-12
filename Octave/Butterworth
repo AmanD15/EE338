@@ -1,0 +1,129 @@
+  clear all;close all;
+  xline = @(xval, varargin) line([xval xval], ylim, varargin{:});
+
+  y = [pi:2*pi:27*pi]/14;
+  x = 1.08*i*exp(i*y);
+  omc = 1.08;
+  B = 0.6984;
+  om = 0.9924*0.9924;
+  ombyB = 0.9924*0.9924/B;
+  coef = [1/B,0,ombyB];
+
+  t = [-2:0.01:2];
+  t = t*i;
+
+  x = x(real(x)<0);
+  num = - omc^7;
+  den = [1,-x(1)];
+  for j = 2:7
+    den = conv(den,[1,-x(j)]);
+  endfor
+  den2 = zeros(size(t));
+  for j = 0:7
+    den2 = den2 + den(8-j)*t.^(j);
+  endfor
+  clear j;
+  figure;
+  plot(t/i,abs(num./den2));
+  hold on;
+%  plot(t/i,1*ones(size(t)));
+%  plot(t/i,0.85*ones(size(t)));
+%  plot(t/i,0.15*ones(size(t)));
+  xlabel ("Analog Lowpass Frequency")
+  ylabel ("Magnitude of frequency respoonse")
+
+
+
+
+  den3 = [0,0,0,0,0,0,0,den(1),0,0,0,0,0,0,0];
+  den3 = den3 + [0,0,0,0,0,0,conv(den(2),coef),0,0,0,0,0,0];
+  den3 = den3 + [0,0,0,0,0,conv(den(3),conv(coef,coef)),0,0,0,0,0];
+  den3 = den3 + [0,0,0,0,conv(den(4),conv(coef,conv(coef,coef))),0,0,0,0];
+  den3 = den3 + [0,0,0,conv(den(5),conv(coef,conv(coef,conv(coef,coef)))),0,0,0];
+  den3 = den3 + [0,0,conv(den(6),conv(coef,conv(coef,conv(coef,conv(coef,coef))))),0,0];
+  den3 = den3 + [0,conv(den(7),conv(coef,conv(coef,conv(coef,conv(coef,conv(coef,coef)))))),0];
+  den3 = den3 + [conv(den(8),conv(coef,conv(coef,conv(coef,conv(coef,conv(coef,conv(coef,coef)))))))];
+  num3 = [conv(coef,conv(coef,conv(coef,conv(coef,conv(coef,conv(coef,coef))))))]*num;
+
+  den4 = zeros(size(t));
+  num4 = zeros(size(t));
+  for j = 0:14
+    num4 = num4 + num3(15-j)*t.^(j);
+    den4 = den4 + den3(15-j)*t.^(j);
+  endfor
+  clear j;
+  figure;
+  plot(t/i,abs(num4./den4));
+  hold on;
+%  plot(t/i,1*ones(size(t)));
+%  plot(t/i,0.85*ones(size(t)));
+%  plot(t/i,0.15*ones(size(t)));
+  xlabel ("Analog Bandstop Frequency")
+  ylabel ("Magnitude of frequency respoonse")
+
+
+  coef2 = [1,-1];
+  coef3 = [1,1];
+  tem3 = conv(coef3,conv(coef3,conv(coef3,conv(coef3,conv(coef3,conv(coef3,coef3))))));
+  tem2 = conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,coef2))))));
+
+  num5 = num3(1)*conv(tem2,tem2);
+  num5 = num5 + conv(tem2,conv(num3(2),conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,coef3)))))))); 
+  num5 = num5 + conv(tem2,conv(num3(3),conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef3,coef3)))))))); 
+  num5 = num5 + conv(tem2,conv(num3(4),conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef3,conv(coef3,coef3)))))))); 
+  num5 = num5 + conv(tem2,conv(num3(5),conv(coef2,conv(coef2,conv(coef2,conv(coef3,conv(coef3,conv(coef3,coef3)))))))); 
+  num5 = num5 + conv(tem2,conv(num3(6),conv(coef2,conv(coef2,conv(coef3,conv(coef3,conv(coef3,conv(coef3,coef3)))))))); 
+  num5 = num5 + conv(tem2,conv(num3(7),conv(coef2,conv(coef3,conv(coef3,conv(coef3,conv(coef3,conv(coef3,coef3))))))));
+  num5 = num5 + num3(8)*conv(tem2,tem3);
+  num5 = num5 + conv(tem3,conv(num3(9),conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,coef3)))))))); 
+  num5 = num5 + conv(tem3,conv(num3(10),conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef3,coef3)))))))); 
+  num5 = num5 + conv(tem3,conv(num3(11),conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef3,conv(coef3,coef3)))))))); 
+  num5 = num5 + conv(tem3,conv(num3(12),conv(coef2,conv(coef2,conv(coef2,conv(coef3,conv(coef3,conv(coef3,coef3)))))))); 
+  num5 = num5 + conv(tem3,conv(num3(13),conv(coef2,conv(coef2,conv(coef3,conv(coef3,conv(coef3,conv(coef3,coef3)))))))); 
+  num5 = num5 + conv(tem3,conv(num3(14),conv(coef2,conv(coef3,conv(coef3,conv(coef3,conv(coef3,conv(coef3,coef3))))))));
+  num5 = num5 + num3(15)*conv(tem3,tem3);
+
+  den5 = den3(1)*conv(tem2,tem2);
+  den5 = den5 + conv(tem2,conv(den3(2),conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,coef3)))))))); 
+  den5 = den5 + conv(tem2,conv(den3(3),conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef3,coef3)))))))); 
+  den5 = den5 + conv(tem2,conv(den3(4),conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef3,conv(coef3,coef3)))))))); 
+  den5 = den5 + conv(tem2,conv(den3(5),conv(coef2,conv(coef2,conv(coef2,conv(coef3,conv(coef3,conv(coef3,coef3)))))))); 
+  den5 = den5 + conv(tem2,conv(den3(6),conv(coef2,conv(coef2,conv(coef3,conv(coef3,conv(coef3,conv(coef3,coef3)))))))); 
+  den5 = den5 + conv(tem2,conv(den3(7),conv(coef2,conv(coef3,conv(coef3,conv(coef3,conv(coef3,conv(coef3,coef3))))))));
+  den5 = den5 + den3(8)*conv(tem2,tem3);
+  den5 = den5 + conv(tem3,conv(den3(9),conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,coef3)))))))); 
+  den5 = den5 + conv(tem3,conv(den3(10),conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef3,coef3)))))))); 
+  den5 = den5 + conv(tem3,conv(den3(11),conv(coef2,conv(coef2,conv(coef2,conv(coef2,conv(coef3,conv(coef3,coef3)))))))); 
+  den5 = den5 + conv(tem3,conv(den3(12),conv(coef2,conv(coef2,conv(coef2,conv(coef3,conv(coef3,conv(coef3,coef3)))))))); 
+  den5 = den5 + conv(tem3,conv(den3(13),conv(coef2,conv(coef2,conv(coef3,conv(coef3,conv(coef3,conv(coef3,coef3)))))))); 
+  den5 = den5 + conv(tem3,conv(den3(14),conv(coef2,conv(coef3,conv(coef3,conv(coef3,conv(coef3,conv(coef3,coef3))))))));
+  den5 = den5 + den3(15)*conv(tem3,tem3);
+  %den6 = zeros(size(t));
+  %num6 = zeros(size(t));
+  %for j = 0:14
+  %  num6 = num6 + num5(15-j)*exp(-t).^(j);
+  %  den6 = den6 + den5(15-j)*exp(-t).^(j);
+  %endfor
+  %clear j;
+  %figure;
+  %plot(t/i,abs(num6./den6));
+
+  [H,W] = freqz(num5,den5);
+  figure;
+  plot(W/pi,abs(H));
+  xlabel ("Normalised discrete-time frequency")
+  ylabel ("Magnitude of frequency respoonse")
+  hold on;
+  
+%  plot(W/pi,1*ones(size(W)));
+%  plot(W/pi,0.85*ones(size(W)));
+%  plot(W/pi,0.15*ones(size(W)));
+
+%Plot the vertical lines denoting filter bandedges on the plot. Uncomment to execute
+%  xline(0.3900);
+%  xline(0.4208);
+%  xline(0.5746);
+%  xline(0.6054);
+
+  figure;
+  freqz(num5,den5); %{Plots magnitude and phase response)
